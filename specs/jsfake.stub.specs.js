@@ -1,7 +1,7 @@
 describe('jsFake stub', function(){
 	function SomeClass() {
 		var self = this;
-		self.privilegedMethod = function () { throw 'privilegedMethod'; }
+		self.privilegedMethod = function () { throw 'privilegedMethod'; };
 	}
 	SomeClass.prototype = {
 		protoMethodWithoutArgs: function(){ throw 'protoMethodWithoutArgs'; },
@@ -15,7 +15,7 @@ describe('jsFake stub', function(){
 
 	function SomeDerivedClass() {
 		var self = this;
-		self.derivedPrivilegedMethod = function () { throw 'derivedPrivilegedMethod'; }
+		self.derivedPrivilegedMethod = function () { throw 'derivedPrivilegedMethod'; };
 	}
 	SomeDerivedClass.prototype = new SomeClass();
 	SomeDerivedClass.prototype.protoMethodOfDerivedClass = function () { throw 'protoMethodOfDerivedClass'; };
@@ -28,48 +28,48 @@ describe('jsFake stub', function(){
 	});
   
 	it('should provide default noop behavior for all "public" prototype methods', function(){
-		var fake = a.stub(SomeClass);		
-		expect(function(){fake.protoMethodWithoutArgs();}).not.toThrow();
-		expect(function(){fake.protoMethodWithArgs(1,2);}).not.toThrow();
-		expect(fake._privateMethod).toBe(undefined);
+		var stub = a.stub(SomeClass);		
+		expect(function(){stub.protoMethodWithoutArgs();}).not.toThrow();
+		expect(function(){stub.protoMethodWithArgs(1,2);}).not.toThrow();
+		expect(stub._privateMethod).toBe(undefined);
 	});
 
 	it('should provide default noop behavior for all "public" prototype methods of a derived class', function () {
-		var fake = a.stub(SomeDerivedClass);
-		expect(function() { fake.protoMethodWithoutArgs(); }).not.toThrow();
-		expect(function() { fake.protoMethodWithArgs(1, 2); }).not.toThrow();
-		expect(function() { fake.protoMethodOfDerivedClass(); }).not.toThrow();
-		expect(fake._privateMethod).toBe(undefined);
+		var stub = a.stub(SomeDerivedClass);
+		expect(function() { stub.protoMethodWithoutArgs(); }).not.toThrow();
+		expect(function() { stub.protoMethodWithArgs(1, 2); }).not.toThrow();
+		expect(function() { stub.protoMethodOfDerivedClass(); }).not.toThrow();
+		expect(stub._privateMethod).toBe(undefined);
 	});
 
 	it('should provide default noop behavior for all "public" instance methods', function () {
-		var fake = a.stub(blueprint);
-		expect(function(){fake.instMethodWithoutArgs();}).not.toThrow();
-		expect(function(){fake.instMethodWithArgs(1,2);}).not.toThrow();
-		expect(fake._privateMethod).toBe(undefined);
+		var stub = a.stub(blueprint);
+		expect(function(){stub.instMethodWithoutArgs();}).not.toThrow();
+		expect(function(){stub.instMethodWithArgs(1,2);}).not.toThrow();
+		expect(stub._privateMethod).toBe(undefined);
 	});
 
 	it('should provide default noop behavior for all "public" instance methods of a derived class', function () {
-		var fake = a.stub(derivedClassBlueprint);
-		expect(function (){fake.instMethodOfDerivedClass();}).not.toThrow();
-		expect(fake._privateMethod).toBe(undefined);
+		var stub = a.stub(derivedClassBlueprint);
+		expect(function (){stub.instMethodOfDerivedClass();}).not.toThrow();
+		expect(stub._privateMethod).toBe(undefined);
 	});
 
 	it('should provide default noop behavior for all "privileged" methods', function () {
-		var fake = a.stub(blueprint);
-		expect(function () { fake.privilegedMethod(); }).not.toThrow();
+		var stub = a.stub(blueprint);
+		expect(function () { stub.privilegedMethod(); }).not.toThrow();
 	});
 
 	it('should provide default noop behavior for all "privileged" methods for a derived class', function () {
-		var fake = a.stub(derivedClassBlueprint);
-		expect(function () { fake.derivedPrivilegedMethod(); }).not.toThrow();
-		expect(function () { fake.privilegedMethod(); }).not.toThrow();
+		var stub = a.stub(derivedClassBlueprint);
+		expect(function () { stub.derivedPrivilegedMethod(); }).not.toThrow();
+		expect(function () { stub.privilegedMethod(); }).not.toThrow();
 	});
 
 	it('should fail to create stub for undefined method', function(){
-		var fake = a.stub(SomeClass);
+		var stub = a.stub(SomeClass);
 		expect(function(){
-			fake.undefinedMethod.whenCalled(function(){});
+			stub.undefinedMethod.whenCalled(function(){});
 		}).toThrow();
 	});
 
