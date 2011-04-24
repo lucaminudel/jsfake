@@ -15,7 +15,6 @@
 	$.a.stub = function (blueprint) {
 		return new $.a.Stub(blueprint);
 	};
-
 	$.a.Stub = function (blueprint) {
 		var _noop = function () { };
 
@@ -31,6 +30,25 @@
 
 		_stubMethodsFor.call(this, blueprint.prototype);
 		_stubMethodsFor.call(this, blueprint);
+	};
+
+	$.a.mock = function (blueprint) {
+		return new $.a.Mock(blueprint);
+	};
+	$.a.Mock = function (blueprint) {
+
+		function _mockMethodsFor(obj) {
+			for (var methodName in obj) {
+				var isFunction = obj[methodName] instanceof Function;
+				var isPublic = methodName[0] !== '_';
+				if (isFunction && isPublic) {
+					this[methodName] = function () { throw "call to '" + methodName + "' not expected"; };
+				}
+			}
+		}
+
+		_mockMethodsFor.call(this, blueprint.prototype);
+		_mockMethodsFor.call(this, blueprint);
 	};
 
 	$.any.callTo = function (fake) {
