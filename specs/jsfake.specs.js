@@ -1,5 +1,8 @@
 describe('jsFake', function(){
-	function SomeClass(){}
+	function SomeClass() {
+		var self = this;
+		self.privilegedMethod = function () { throw 'privilegedMethod'; }
+	}
 	SomeClass.prototype = {
 		protoMethodWithoutArgs: function(){ throw 'protoMethodWithoutArgs'; },
 		protoMethodWithArgs: function(arg1, arg2){ throw 'protoMethodWithArgs'; },
@@ -10,7 +13,10 @@ describe('jsFake', function(){
 	blueprint.instMethodWithArgs = function(arg1, arg2){ throw 'instMethodWithArgs'; };
 	blueprint._privateMethod = function () { throw '_privateMethod'; };
 
-	function SomeDerivedClass() {}
+	function SomeDerivedClass() {
+		var self = this;
+		self.derivedPrivilegedMethod = function () { throw 'derivedPrivilegedMethod'; }
+	}
 	SomeDerivedClass.prototype = new SomeClass();
 	SomeDerivedClass.prototype.protoMethodOfDerivedClass = function () { throw 'protoMethodOfDerivedClass'; };
 	var derivedClassBlueprint = new SomeDerivedClass();
@@ -30,9 +36,9 @@ describe('jsFake', function(){
 
 	it('should provide default noop behavior for all "public" prototype methods of a derived class', function () {
 		var fake = a.fake(SomeDerivedClass);
-		expect(function () { fake.protoMethodWithoutArgs(); }).not.toThrow();
-		expect(function () { fake.protoMethodWithArgs(1, 2); }).not.toThrow();
-		expect(function () { fake.protoMethodOfDerivedClass(); }).not.toThrow();
+		expect(function() { fake.protoMethodWithoutArgs(); }).not.toThrow();
+		expect(function() { fake.protoMethodWithArgs(1, 2); }).not.toThrow();
+		expect(function() { fake.protoMethodOfDerivedClass(); }).not.toThrow();
 		expect(fake._privateMethod).toBe(undefined);
 	});
 
@@ -47,6 +53,17 @@ describe('jsFake', function(){
 		var fake = a.fake(derivedClassBlueprint);
 		expect(function (){fake.instMethodOfDerivedClass();}).not.toThrow();
 		expect(fake._privateMethod).toBe(undefined);
+	});
+
+	it('should provide default noop behavior for all "privileged" methods', function () {
+		var fake = a.fake(blueprint);
+		expect(function () { fake.privilegedMethod(); }).not.toThrow();
+	});
+
+	it('should provide default noop behavior for all "privileged" methods for a derived class', function () {
+		var fake = a.fake(derivedClassBlueprint);
+		expect(function () { fake.derivedPrivilegedMethod(); }).not.toThrow();
+		expect(function () { fake.privilegedMethod(); }).not.toThrow();
 	});
 
 	it('should support "strict" behavior for stubbed methods', function () {
