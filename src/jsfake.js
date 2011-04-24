@@ -12,11 +12,23 @@
 		_interceptMethodsFor.call(this, blueprint);
 	};
 
-	$.a.stub = function (blueprint) { 
-		return new $.a.Stub(blueprint)
-	}
+	$.a.stub = function (blueprint) {
+		return new $.a.Stub(blueprint);
+	};
 
 	$.a.Stub = function (blueprint) {
+		var _noop = function () { };
+
+		function _stubMethodsFor(obj) {
+			for (var methodName in obj) {
+				var isFunction = obj[methodName] instanceof Function;
+				var isPublic = methodName[0] !== '_';
+				if (isFunction && isPublic) {
+					this[methodName] = _noop;
+				}
+			}
+		}
+
 		_stubMethodsFor.call(this, blueprint.prototype);
 		_stubMethodsFor.call(this, blueprint);
 	};
@@ -35,16 +47,6 @@
 
 	var _noop = function () { };
 	var _unexpected = function () { throw 'unexpected call'; };
-
-	var _stubMethodsFor = function (obj) {
-		for (var methodName in obj) {
-			var isFunction = obj[methodName] instanceof Function;
-			var isPublic = methodName[0] !== '_';
-			if (isFunction && isPublic) {
-				this[methodName] = _noop;
-			}
-		}
-	};
 
 	var _interceptMethodsFor = function (obj) {
 		for (var methodName in obj) {
