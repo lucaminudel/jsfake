@@ -1,7 +1,7 @@
 describe('jsFake', function(){
 	function SomeClass() {
 		var self = this;
-		self.privilegedMethod = function () { throw 'privilegedMethod'; }
+		self.privilegedMethod = function () { throw 'privilegedMethod'; };
 	}
 	SomeClass.prototype = {
 		protoMethodWithoutArgs: function(){ throw 'protoMethodWithoutArgs'; },
@@ -15,7 +15,7 @@ describe('jsFake', function(){
 
 	function SomeDerivedClass() {
 		var self = this;
-		self.derivedPrivilegedMethod = function () { throw 'derivedPrivilegedMethod'; }
+		self.derivedPrivilegedMethod = function () { throw 'derivedPrivilegedMethod'; };
 	}
 	SomeDerivedClass.prototype = new SomeClass();
 	SomeDerivedClass.prototype.protoMethodOfDerivedClass = function () { throw 'protoMethodOfDerivedClass'; };
