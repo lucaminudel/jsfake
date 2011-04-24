@@ -8,7 +8,13 @@ describe('jsFake', function(){
 	var blueprint = new SomeClass();
 	blueprint.instMethodWithoutArgs = function(){ throw 'instMethodWithoutArgs'; };
 	blueprint.instMethodWithArgs = function(arg1, arg2){ throw 'instMethodWithArgs'; };
-	blueprint._privateMethod = function(){ throw '_privateMethod'; };
+	blueprint._privateMethod = function () { throw '_privateMethod'; };
+
+	function SomeDerivedClass() {}
+	SomeDerivedClass.prototype = new SomeClass();
+	SomeDerivedClass.prototype.protoMethodOfDerivedClass = function () { throw 'protoMethodOfDerivedClass'; };
+	var derivedClassBlueprint = new SomeDerivedClass();
+	derivedClassBlueprint.instMethodOfDerivedClass = function () { throw 'instMethodOfDerivedClass'; };
 
 	it('should create a new instance from blueprint', function(){
 		expect(a.fake(SomeClass)).not.toEqual(undefined);
@@ -16,20 +22,34 @@ describe('jsFake', function(){
 	});
   
 	it('should provide default noop behavior for all "public" prototype methods', function(){
-		var fake = a.fake(SomeClass);
+		var fake = a.fake(SomeClass);		
 		expect(function(){fake.protoMethodWithoutArgs();}).not.toThrow();
 		expect(function(){fake.protoMethodWithArgs(1,2);}).not.toThrow();
 		expect(fake._privateMethod).toBe(undefined);
 	});
 
-	it('should provide default noop behavior for all "public" instance methods', function(){
+	it('should provide default noop behavior for all "public" prototype methods of a derived class', function () {
+		var fake = a.fake(SomeDerivedClass);
+		expect(function () { fake.protoMethodWithoutArgs(); }).not.toThrow();
+		expect(function () { fake.protoMethodWithArgs(1, 2); }).not.toThrow();
+		expect(function () { fake.protoMethodOfDerivedClass(); }).not.toThrow();
+		expect(fake._privateMethod).toBe(undefined);
+	});
+
+	it('should provide default noop behavior for all "public" instance methods', function () {
 		var fake = a.fake(blueprint);
 		expect(function(){fake.instMethodWithoutArgs();}).not.toThrow();
 		expect(function(){fake.instMethodWithArgs(1,2);}).not.toThrow();
 		expect(fake._privateMethod).toBe(undefined);
 	});
 
-	it('should support "strict" behavior for stubbed methods', function(){
+	it('should provide default noop behavior for all "public" instance methods of a derived class', function () {
+		var fake = a.fake(derivedClassBlueprint);
+		expect(function (){fake.instMethodOfDerivedClass();}).not.toThrow();
+		expect(fake._privateMethod).toBe(undefined);
+	});
+
+	it('should support "strict" behavior for stubbed methods', function () {
 		var fake = a.fake(SomeClass);
 		any.callTo(fake).willThrow();
 		expect(function(){fake.protoMethodWithoutArgs();}).toThrow();
