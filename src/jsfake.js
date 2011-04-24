@@ -8,82 +8,67 @@
 		return new $.a.Fake(blueprint);
 	};
 	$.a.Fake = function (blueprint) {
-		_interceptMethodsFor.call(this, blueprint.prototype);
-		_interceptMethodsFor.call(this, blueprint);
+		var createInterceptedMethod = function () {
+			var noop = function () { };
+			var method = function () {
+				method.numberOfCalls++;
+				return method.behavior.apply(this, arguments);
+			};
+			method.numberOfCalls = 0;
+			method.behavior = noop;
+			method.whenCalled = function (newBehavior) { method.behavior = newBehavior; };
+			return method;
+		};
+		
+		_interceptMethodsFor.call(this, blueprint.prototype, createInterceptedMethod);
+		_interceptMethodsFor.call(this, blueprint, createInterceptedMethod);
 	};
 
 	$.a.stub = function (blueprint) {
 		return new $.a.Stub(blueprint);
 	};
 	$.a.Stub = function (blueprint) {
-		var _noop = function () { };
+		var createNoopMethod = function () {
+			return function () { };
+		};
 
-		function _stubMethodsFor(obj) {
-			for (var methodName in obj) {
-				var isFunction = obj[methodName] instanceof Function;
-				var isPublic = methodName[0] !== '_';
-				if (isFunction && isPublic) {
-					this[methodName] = _noop;
-				}
-			}
-		}
-
-		_stubMethodsFor.call(this, blueprint.prototype);
-		_stubMethodsFor.call(this, blueprint);
+		_interceptMethodsFor.call(this, blueprint.prototype, createNoopMethod);
+		_interceptMethodsFor.call(this, blueprint, createNoopMethod);
 	};
 
 	$.a.mock = function (blueprint) {
 		return new $.a.Mock(blueprint);
 	};
 	$.a.Mock = function (blueprint) {
+		createUnexpectedCallMethod = function (methodName) {
+			return function () { throw "call to '" + methodName + "' not expected"; };
+		};
 
-		function _mockMethodsFor(obj) {
-			for (var methodName in obj) {
-				var isFunction = obj[methodName] instanceof Function;
-				var isPublic = methodName[0] !== '_';
-				if (isFunction && isPublic) {
-					this[methodName] = function () { throw "call to '" + methodName + "' not expected"; };
-				}
-			}
-		}
-
-		_mockMethodsFor.call(this, blueprint.prototype);
-		_mockMethodsFor.call(this, blueprint);
+		_interceptMethodsFor.call(this, blueprint.prototype, createUnexpectedCallMethod);
+		_interceptMethodsFor.call(this, blueprint, createUnexpectedCallMethod);
 	};
 
 	$.any.callTo = function (fake) {
 		return {
 			_fake: fake,
 			willThrow: function () {
+				var unexpected = function () { throw 'unexpected call'; };
 				for (var methodName in this._fake) {
-					this._fake[methodName].behavior = _unexpected;
+					this._fake[methodName].behavior = unexpected;
 				}
 				return this._fake;
 			}
 		};
 	};
 
-	var _noop = function () { };
-	var _unexpected = function () { throw 'unexpected call'; };
-
-	var _interceptMethodsFor = function (obj) {
+	var _interceptMethodsFor = function (obj, createInterceptedMethodFunc) {
 		for (var methodName in obj) {
 			var isFunction = obj[methodName] instanceof Function;
 			var isPublic = methodName[0] !== '_';
 			if (isFunction && isPublic) {
-				this[methodName] = _createInterceptedMethod();
+				this[methodName] = createInterceptedMethodFunc(methodName);
 			}
 		}
 	};
 
-	var _createInterceptedMethod = function () {
-		var method = function () {
-			method.numberOfCalls++;
-			return method.behavior.apply(this, arguments);
-		};
-		method.numberOfCalls = 0;
-		method.behavior = _noop;
-		method.whenCalled = function (newBehavior) { method.behavior = newBehavior; };
-		return method;
-	};
 })(this);
