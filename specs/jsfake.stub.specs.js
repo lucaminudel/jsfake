@@ -66,12 +66,5 @@ describe('jsFake stub', function(){
 		expect(function () { stub.privilegedMethod(); }).not.toThrow();
 	});
 
-	it('should fail to create stub for undefined method', function(){
-		var stub = a.stub(SomeClass);
-		expect(function(){
-			stub.undefinedMethod.whenCalled(function(){});
-		}).toThrow();
-	});
-
 });
 
